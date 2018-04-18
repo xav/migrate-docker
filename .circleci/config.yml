@@ -1,0 +1,14 @@
+version: 2
+jobs:
+  build:
+    docker:
+      - image: golang:1.10
+
+    working_directory: /home/circleci/image-builder
+    steps:
+      - checkout
+      - run: go get github.com/lib/pq
+      - run: go get github.com/go-sql-driver/mysql
+      - run: go get github.com/gocql/gocql
+      - run: go get github.com/mattes/migrate/cli
+      - run: CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -ldflags "-s" -a -installsuffix cgo -tags 'postgres cassandra redshift mysql aws-s3' github.com/mattes/migrate/cli
