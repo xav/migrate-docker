@@ -27,6 +27,6 @@ jobs:
       - run:
           name: Publish image
           command: |
-            docker login -e $DOCKER_EMAIL -u $DOCKER_USER -p $DOCKER_PASS
+            docker login -u $DOCKER_USER -p $DOCKER_PASS
             docker build -f Dockerfile -t xbasty/migrate:$CIRCLE_SHA1 .
             docker push xbasty/migrate
