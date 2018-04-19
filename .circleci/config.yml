@@ -19,16 +19,24 @@ jobs:
             go get github.com/gocql/gocql
 
       - run:
-          name: Build image
+          name: Build migrate
           command: |
             go get github.com/mattes/migrate/cli
             CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -ldflags "-s" -a -installsuffix cgo -tags 'postgres cassandra redshift mysql aws-s3' -o migrate github.com/mattes/migrate/cli
 
       - run:
+          name: Build image
+          command: |
+            docker build -f Dockerfile -t $REPO:$CIRCLE_SHA1 .
+
+      - run:
+          name: Tag image
+          command: |
+            export TAG=`if [ "$CIRCLE_BRANCH" == "master" ]; then echo "latest"; else echo $CIRCLE_BRANCH ; fi`
+            docker tag $REPO:$CIRCLE_SHA1 $REPO:$TAG
+
+      - run:
           name: Publish image
           command: |
             docker login -u $DOCKER_USER -p $DOCKER_PASS
-            docker build -f Dockerfile -t xbasty/migrate:$CIRCLE_SHA1 .
-            docker tag $REPO:$CIRCLE_SHA1 . $REPO:$TAG
-            docker tag $REPO:$CIRCLE_SHA1 . $REPO:circleci-$CIRCLE_BUILD_NUM
             docker push $REPO
