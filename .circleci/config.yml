@@ -1,6 +1,10 @@
 version: 2
 jobs:
   build:
+    machine:
+      environment:
+        REPO: xbasty/migrate
+        TAG: `if [ "$CIRCLE_BRANCH" == "master" ]; then echo "latest"; else echo $CIRCLE_BRANCH ; fi`
     docker:
       - image: circleci/golang:1.10
 
@@ -29,4 +33,6 @@ jobs:
           command: |
             docker login -u $DOCKER_USER -p $DOCKER_PASS
             docker build -f Dockerfile -t xbasty/migrate:$CIRCLE_SHA1 .
-            docker push xbasty/migrate
+            docker tag $REPO:$CIRCLE_SHA1 . $REPO:$TAG
+            docker tag $REPO:$CIRCLE_SHA1 . $REPO:circleci-$CIRCLE_BUILD_NUM
+            docker push $REPO
