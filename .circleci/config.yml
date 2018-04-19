@@ -2,16 +2,31 @@ version: 2
 jobs:
   build:
     docker:
-      - image: golang:1.10
+      - image: circleci/golang:1.10
 
     working_directory: /home/circleci/image-builder
     steps:
       - checkout
-      - run: go get github.com/lib/pq
-      - run: go get github.com/go-sql-driver/mysql
-      - run: go get github.com/gocql/gocql
-      - run: go get github.com/mattes/migrate/cli
-      - run: CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -ldflags "-s" -a -installsuffix cgo -tags 'postgres cassandra redshift mysql aws-s3' github.com/mattes/migrate/cli
-      - run: docker login -e $DOCKER_EMAIL -u $DOCKER_USER -p $DOCKER_PASS
-      - run: docker build -f Dockerfile -t xbasty/migrate:$CIRCLE_SHA1 .
-      - run: docker push xbasty/migrate
+
+      - setup_remote_docker:
+          docker_layer_caching: true
+
+      - run:
+          name: Fetch dependencies
+          command: |
+            go get github.com/lib/pq
+            go get github.com/go-sql-driver/mysql
+            go get github.com/gocql/gocql
+
+      - run:
+          name: Build image
+          command: |
+            go get github.com/mattes/migrate/cli
+            CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -ldflags "-s" -a -installsuffix cgo -tags 'postgres cassandra redshift mysql aws-s3' github.com/mattes/migrate/cli
+
+      - run:
+          name: Publish image
+          command: |
+            docker login -e $DOCKER_EMAIL -u $DOCKER_USER -p $DOCKER_PASS
+            docker build -f Dockerfile -t xbasty/migrate:$CIRCLE_SHA1 .
+            docker push xbasty/migrate
