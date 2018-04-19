@@ -3,7 +3,7 @@ jobs:
   build:
     machine:
       environment:
-        REPO: xbasty/migrate
+        REPO: "xbasty/migrate"
         TAG: `if [ "$CIRCLE_BRANCH" == "master" ]; then echo "latest"; else echo $CIRCLE_BRANCH ; fi`
     docker:
       - image: circleci/golang:1.10
