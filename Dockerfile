@@ -5,7 +5,7 @@ WORKDIR /go/
 RUN go get github.com/lib/pq
 RUN go get github.com/go-sql-driver/mysql
 RUN go get github.com/gocql/gocql
-RUN go get github.com/mattes/migrate/cli
+RUN go get github.com/golang-migrate/migrate/cli
 
 RUN CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -ldflags "-s" -a -installsuffix cgo -tags 'postgres cassandra redshift mysql aws-s3' -o migrate github.com/mattes/migrate/cli
 
