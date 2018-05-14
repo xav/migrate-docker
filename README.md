@@ -1,3 +1,3 @@
 # migrate-docker
 
-Container wrapping https://github.com/mattes/migrate
+Container wrapping https://github.com/golang-migrate/migrate
